@@ -1,9 +1,10 @@
 #lang sicp
 
-; fast-mult: returns the product of integers a and b
-; in O(log n) time and O(1) space.
+; fast-mult: Returns the product of integers a and b
+; in O(log a) time and O(1) space. This is the
+; "Russian peasant method" of multiplication.
 (define (fast-mult a b)
-  (define (mult-iter a b c) ; maintains invariant a*b + c
+  (define (mult-iter a b c) ; maintains invariant quantity a*b + c
     (cond ((= a 0) c)
           ((even? a) (mult-iter (halve a) (double b) c))
           (else (mult-iter (- a 1) b (+ c b)))))
@@ -17,9 +18,9 @@
   (= (remainder x 2) 0))
 
 ; Test
-(define (fast-mult-test a b maxb)
+(define (test-fast-mult a b maxb)
   (cond ((<= b maxb)
          (display (fast-mult a b))
          (newline)
-         (fast-mult-test a (+ b 1) maxb))))
-(fast-mult-test 7 0 11)
+         (test-fast-mult a (+ b 1) maxb))))
+(test-fast-mult 7 0 11)

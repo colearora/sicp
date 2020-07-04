@@ -1,6 +1,6 @@
 #lang sicp
 
-; fast-expt: raises base b to integer exponent n
+; fast-expt: Raises base b to integer exponent n
 ; in O(n) time and O(1) space.
 (define (fast-expt b n)
   (define (expt-iter a b n) ; maintains invariant quantity a * b^n

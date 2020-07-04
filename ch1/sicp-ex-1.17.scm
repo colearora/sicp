@@ -1,7 +1,7 @@
 #lang sicp
 
-; fast-mult: returns the product of integers a and b
-; in O(log n) time and space.
+; fast-mult: Returns the product of integers a and b
+; in O(log a) time and space.
 (define (fast-mult a b)
   (cond ((= a 0) 0)
         ((even? a) (double (fast-mult (halve a) b)))
@@ -15,9 +15,9 @@
   (= (remainder x 2) 0))
 
 ; Test
-(define (fast-mult-test a b maxb)
+(define (test-fast-mult a b maxb)
   (cond ((<= b maxb)
          (display (fast-mult a b))
          (newline)
-         (fast-mult-test a (+ b 1) maxb))))
-(fast-mult-test 7 0 11)
+         (test-fast-mult a (+ b 1) maxb))))
+(test-fast-mult 7 0 11)
