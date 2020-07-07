@@ -34,7 +34,7 @@
 
 ; fermat-test: Returns true if, given a random number a in [1..n-1],
 ; it is the case that a^n mod n = a, and false otherwise. This is the Fermat test
-; for primality, running in O(log n). A false result means that
+; for primality, running in O(log n) time. A false result means that
 ; n is definitely not prime; a true result means that n is probably prime.
 (define (fermat-test n)
   (define (try-it a)
