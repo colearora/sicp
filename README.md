@@ -1,2 +1,2 @@
 # sicp
-Work related to the book Structure and Interpretation of Computer Programs (SICP)
+Work related to the book Structure and Interpretation of Computer Programs (SICP).
