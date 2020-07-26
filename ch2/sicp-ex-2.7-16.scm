@@ -14,11 +14,38 @@
 (define (make-interval a b)
   (if (<= a b) (cons a b) (cons b a)))
 
+; make-center-width takes a center c and width w, and returns the
+; interval spanning from c-w to c+w.
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+
+; make-center-percent takes a center c and a tolerance tol, where tol
+; is the ratio of interval width to (absolute value of) center as a percent,
+; and returns the corresponding interval.
+(define (make-center-percent c tol)
+  (make-center-width c (abs (* c (/ tol 100.0)))))
+
 ; Selectors:
 
 (define (lower-bound x) (car x))
 (define (upper-bound x) (cdr x))
 
+; center returns the center of interval x, which is the average of x's bounds.
+(define (center x)
+  (/ (+ (lower-bound x) (upper-bound x)) 2.0))
+
+; width returns half of the difference between the upper and lower bounds
+; of interval x. The width is a measure of the uncertainty of the number
+; specified by the interval.
+(define (width x)
+  (/ (- (upper-bound x) (lower-bound x)) 2.0))
+
+; percent returns the percentage tolerance of interval x, defined as the
+; ratio of the interval's width to the absolute value of its center.
+(define (percent x)
+  (* (/ (width x) (abs (center x)))
+     100.0))
+  
 ; Operations:
 
 (define (print-interval x)
@@ -93,11 +120,7 @@
       (error "div-interval: divisor spans zero"))
   (mul-interval x (reciprocal y)))
 
-; width returns half of the difference between the upper and lower bounds
-; of interval x. The width is a measure of the uncertainty of the number
-; specified by the interval.
-(define (width x)
-  (/ (- (upper-bound x) (lower-bound x)) 2.0))
+; Helper procedures:
 
 (define (neg? x) (< x 0))
 (define (non-neg? x) (>= x 0))
@@ -125,8 +148,18 @@
 
 (width x) ; 0.5
 (width y) ; 2.0
-(width (add-interval x y)) ; 2.5 - for intervals, width of sum is sum of widths.
-(width (sub-interval x y)) ; 2.5 - for intervals, width of difference is sum of widths.
-(width (mul-interval x y)) ; 6.0 - no such pattern for multiplication/division.
+(width (add-interval x y)) ; 2.5 (for intervals, width of sum is sum of widths)
+(width (sub-interval x y)) ; 2.5 (for intervals, width of difference is sum of widths)
+(width (mul-interval x y)) ; 6.0 (no such pattern for multiplication/division)
 
+(define r (make-center-percent 6.8 10))
+
+(print-interval r) ; (6.12, 7.4799999999999995)
+(center r) ; 6.8
+(width r) ; 0.6799999999999997
+(percent r) ; 9.999999999999996
+
+; Given two intervals with small tolerances, the tolerance of the product
+; is approximately the sum of the individual tolerances.
+(percent (mul-interval r r)) ; 19.8019801980198 ~= 10 + 10
 
