@@ -1,11 +1,11 @@
 #lang sicp
 
+; Interval data type.
+; Supports interval arithmetic.
+
 ;===============================================================================
 ; Source
 ;===============================================================================
-
-; Interval data type.
-; Supports interval arithmetic.
 
 ; Constructors:
 
@@ -48,12 +48,22 @@
   
 ; Operations:
 
+; print-interval takes an interval x with lower and upper bounds
+; a and b respectively, and prints "(a, b)".
 (define (print-interval x)
   (display "(")
   (display (lower-bound x))
   (display ", ")
   (display (upper-bound x))
   (display ")\n"))
+
+; print-center-percent takes an interval x with center c and
+; percent tolerance t, and prints "c (%t)".
+(define (print-center-percent x)
+  (display (center x))
+  (display " (")
+  (display (percent x))
+  (display "%)\n"))
 
 ; reciprocal returns the reciprocal of interval x.
 ; This is a new interval whose bounds are the reciprocals
@@ -133,7 +143,9 @@
 (define y (make-interval -2 2))
 
 (print-interval x) ; (2, 3)
+(print-center-percent x) ; 2.5 (20%)
 (print-interval y) ; (-2, 2)
+; (print-center-percent y) ; error: /: division by zero
 
 (lower-bound x) ; 2
 (upper-bound x) ; 3
@@ -152,14 +164,47 @@
 (width (sub-interval x y)) ; 2.5 (for intervals, width of difference is sum of widths)
 (width (mul-interval x y)) ; 6.0 (no such pattern for multiplication/division)
 
-(define r (make-center-percent 6.8 10))
+(define r1 (make-center-percent 6.8 10))
+(define r2 (make-center-percent 8.1 5))
 
-(print-interval r) ; (6.12, 7.4799999999999995)
-(center r) ; 6.8
-(width r) ; 0.6799999999999997
-(percent r) ; 9.999999999999996
+(print-center-percent r1) ; 6.8 (9.999999999999996%)
+(print-interval r1) ; (6.12, 7.4799999999999995)
+(print-center-percent r2) ; 8.1 (4.999999999999997%)
+(print-interval r2) ; (7.694999999999999, 8.504999999999999)
 
 ; Given two intervals with small tolerances, the tolerance of the product
 ; is approximately the sum of the individual tolerances.
-(percent (mul-interval r r)) ; 19.8019801980198 ~= 10 + 10
+(percent (mul-interval r1 r1)) ; 19.8019801980198 ~= 10 + 10
+(percent (mul-interval r1 r2)) ; 14.925373134328357 ~= 10 + 5
+(percent (mul-interval r2 r2)) ; 9.975062344139651 ~= 5 + 5
+(percent (mul-interval r1 (make-interval 2 2))) ; 9.999999999999996 ~= 10 + 0
+
+; The tolerance of the result of adding an interval x to itself
+; is just the tolerance of x. The relationship is more complicated
+; when the intervals are distinct.
+(percent (add-interval r1 r1)) ; 9.999999999999996 - equal to tolerance of r1
+(percent (add-interval r1 r2)) ; 7.281879194630873 - between tolerances of r1 and r2
+(percent (add-interval r1 (make-interval 2 2))) ; 7.727272727272723 - between
+
+; The results of interval arithmetic can differ between expressions that are
+; algebraically equivalent. Example:
+(define (par1 r1 r2)
+  (div-interval (mul-interval r1 r2)
+                (add-interval r1 r2)))
+(define (par2 r1 r2)
+  (let ((one (make-interval 1 1)))
+    (div-interval one (add-interval (div-interval one r1)
+                                    (div-interval one r2)))))
+(print-center-percent (par1 r1 r2)) ; 3.775525304158316 (21.96848833176435%)
+(print-center-percent (par2 r1 r2)) ; 3.6943392573860465 (7.727479872398593%)
+
+; Among equivalent algebraic expressions the expression that minimizes the
+; number of uncertain quantities (i.e., intervals) should have the lowest tolerance
+; for two reasons: (1) multiplication/division of intervals increases tolerance while
+; multiplication/division of an interval with a known quantity (or interval with
+; 0% tolerance) does not; and (2) certain binary interval operations involving an
+; interval with itself have attached uncertainty where none should exist, e.g., 
+(print-interval (div-interval r1 r1)) ; (0.8181, 1.22) - should be 1 (0%)
+(print-interval (sub-interval r1 r1)) ; (-1.359, 1.359) - should be 0 (0%)
+
 
