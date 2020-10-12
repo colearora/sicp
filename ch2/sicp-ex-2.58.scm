@@ -153,6 +153,39 @@
 ; Test - infix parsing
 ;===============================================================================
 
+(define (make-test in want)
+  (list in want))
+(define (in-test test)
+  (car test))
+(define (want-test test)
+  (cadr test))
+(define (run-tests tests)
+  (cond ((not (null? tests))
+         (let ((test (car tests)))
+           (let ((in (in-test test))
+                 (want (want-test test)))
+             (let ((got (parse in)))
+               (if (not (equal? got want))
+                   (error 'parse
+                          "in=~s, got=~s, want=~s"
+                          in got want)))))
+         (run-tests (cdr tests)))))
+(define tests
+  (list
+   (make-test
+    '()
+    '())
+   (make-test
+    '(a)
+    'a)
+   (make-test
+    '(a + b)
+    '(+ a b))
+   (make-test
+    '((a + b))
+    '(+ a b))))
+(run-tests tests)
+
 '()
 (parse '()) ; ()
 (display "\n")
